@@ -1,8 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Tank.h"
-
 // Sets default values
 ATank::ATank()
 {
@@ -35,6 +33,7 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void ATank::SetBarrelReferrence(UTankBarrel * BarrelFromOutSide)
 {
 	TanAimingCompo->SetBarrelReferrenceFromOwner(BarrelFromOutSide);
+	localBarrel = BarrelFromOutSide;
 }
 
 void ATank::SetTurretRefferrence(UTankTurret * TurretFromOutside)
@@ -44,6 +43,15 @@ void ATank::SetTurretRefferrence(UTankTurret * TurretFromOutside)
 
 void ATank::Fire()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Fire in The Hole!!"));
+	if (!localBarrel)
+	{
+		return;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("local Barrel Found!"));
+	GetWorld()->SpawnActor<AProjectile>(
+		ProjecTileBluePrint,
+		localBarrel->GetSocketLocation(FName("Projectile")),
+		localBarrel->GetSocketRotation(FName("Projectile"))
+		);
 }
 
