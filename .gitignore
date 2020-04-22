@@ -1,0 +1,9 @@
+*.sln
+*.pdb
+*.dll
+*.uasset
+*.response
+Intermediate/
+Content/
+Saved/
+.vs/
