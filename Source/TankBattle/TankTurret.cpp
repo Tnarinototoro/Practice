@@ -4,6 +4,7 @@
 #include "TankTurret.h"
 void UTankTurret::RotateTurret(float RelativeSpeed)
 {
+	//the rotate will always rotate to the nearest angle!
 	bool reverse = abs(RelativeSpeed) > 180? true : false;
 	RelativeSpeed = FMath::Clamp<float>(RelativeSpeed, -1, +1);
 	auto RotateChange = RelativeSpeed * MaxRotationDegreesPersecond*GetWorld()->DeltaTimeSeconds;
