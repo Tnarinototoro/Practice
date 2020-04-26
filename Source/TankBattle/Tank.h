@@ -18,7 +18,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	UAimingComponent* TanAimingCompo=nullptr;
+	UAimingComponent* TanAimingCompo = nullptr;
 
 public:	
 	// Called every frame
@@ -34,6 +34,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void Fire();
+
 private:
 	UTankBarrel* localBarrel = nullptr;
 
@@ -42,4 +43,8 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Setup)
 		TSubclassOf<AProjectile> ProjecTileBluePrint;
+	UPROPERTY(EditDefaultsOnly , Category = Firing)
+	float ReloadTimeSeconds = 3;
+
+	double LastFireTime=0;
 };

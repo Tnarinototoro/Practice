@@ -76,8 +76,8 @@ void UAimingComponent::AimAt(FVector WorldSpaceAim,float LaunchiSpeed)
 			}
 			else
 			{
-				UE_LOG(LogTemp, Warning,
-					L"No trace Found!");
+				//UE_LOG(LogTemp, Warning,
+				//	L"No trace Found!");
 				Barrel->Eleate(-1);
 				
 			}

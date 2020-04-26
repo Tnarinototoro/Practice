@@ -43,15 +43,21 @@ void ATank::SetTurretRefferrence(UTankTurret * TurretFromOutside)
 
 void ATank::Fire()
 {
-	if (!localBarrel)
+	bool IsReloaded = (FPlatformTime::Seconds()-LastFireTime)>ReloadTimeSeconds;
+	if (IsReloaded&&localBarrel)
 	{
+		auto toBeLaunched = GetWorld()->SpawnActor<AProjectile>(
+			ProjecTileBluePrint,
+			localBarrel->GetSocketLocation(FName("Projectile")),
+			localBarrel->GetSocketRotation(FName("Projectile"))
+			);
+		toBeLaunched->LaunchProjectile(this->LaunchSpeed);
+		LastFireTime = FPlatformTime::Seconds();
+	}
+	else
+	{
+		//UE_LOG(LogTemp, Warning, L"Barrel not Found or Reloading!!!");
 		return;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("local Barrel Found!"));
-	GetWorld()->SpawnActor<AProjectile>(
-		ProjecTileBluePrint,
-		localBarrel->GetSocketLocation(FName("Projectile")),
-		localBarrel->GetSocketRotation(FName("Projectile"))
-		);
 }
 

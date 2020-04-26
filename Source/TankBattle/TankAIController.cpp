@@ -6,24 +6,6 @@
 void ATankAIController::BeginPlay()
 {
 	Super::BeginPlay();
-	auto possessedTank = GetAITank();
-	if (!possessedTank)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("AI Controller C++ class has not found Anything"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("AI Controller C++ class found %s"), *(possessedTank->GetName()));
-	}
-		
-	if (GetPlayerTank())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("AI finding Player Controller Success"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("AI finding Player Controller Failed!"));
-	}
 }
 ATank * ATankAIController::GetAITank()const
 {
@@ -39,6 +21,15 @@ ATank * ATankAIController::GetPlayerTank() const
 void ATankAIController::Tick(float deltaTime)
 {
 	ATank* OurAiTank = this->GetAITank();
-	OurAiTank->AimAt(GetPlayerTank()->GetActorLocation());
+	ATank* PlayerTank = GetPlayerTank();
+	if (OurAiTank&&PlayerTank)
+	{
+		OurAiTank->AimAt(PlayerTank->GetActorLocation());
+		//OurAiTank->Fire();
+	}
+	else
+	{
+
+	}
 
 }

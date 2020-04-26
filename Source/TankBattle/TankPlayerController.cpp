@@ -2,7 +2,6 @@
 
 
 #include "TankPlayerController.h"
-
 ATank* ATankPlayerController::GetTank() const
 {
 	return Cast<ATank>(GetPawn());
@@ -17,13 +16,18 @@ void ATankPlayerController::BeginPlay()
 	}
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Player Controller C++ class found %s"), *(possessedTank->GetName()));
+
 }
 void ATankPlayerController::Tick(float deltaTime)
 {
 	Super::Tick(deltaTime);
 	AimTowardCrossHair();
+	UInputComponent* input = FindComponentByClass<UInputComponent>();
+	if (input)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("input Found!"));
+	}
 }
-
 void ATankPlayerController::AimTowardCrossHair()
 {
 	//failed!

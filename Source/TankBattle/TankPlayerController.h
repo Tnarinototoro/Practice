@@ -17,7 +17,6 @@ class TANKBATTLE_API ATankPlayerController : public APlayerController
 public:
 	ATank* GetTank() const;
 	virtual void BeginPlay() override;
-
 	virtual void Tick(float deltaTime) override;
 	UPROPERTY(EditAnywhere)
 		float Xpos = 0.5;
@@ -32,5 +31,4 @@ public:
 	bool GetAimHitDirection(FVector & inVector, FVector & CameraPos) const;
 	//get the aiming world direction
 	bool GetHitLocation(FHitResult& HitRes) const;
-	
 };

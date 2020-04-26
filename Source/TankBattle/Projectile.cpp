@@ -7,7 +7,9 @@
 AProjectile::AProjectile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+	Movement = CreateDefaultSubobject<UProjectileMovementComponent>(FName("Movement"));
+	Movement->bAutoActivate = false;
 
 }
 
@@ -22,6 +24,14 @@ void AProjectile::BeginPlay()
 void AProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+}
+void AProjectile::LaunchProjectile(float speeds)
+{
+
+	Movement->SetVelocityInLocalSpace(FVector::ForwardVector*speeds);
+	UE_LOG(LogTemp, Warning, TEXT("Forward VEctor %s"),*FVector::ForwardVector.ToString());
+	Movement->Activate();
 
 }
 
