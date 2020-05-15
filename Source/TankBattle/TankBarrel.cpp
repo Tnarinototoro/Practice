@@ -2,6 +2,7 @@
 
 
 #include "TankBarrel.h"
+#include "UObject/ConstructorHelpers.h"
 
 void UTankBarrel::Eleate(float RelativeSpeed)
 {
@@ -11,4 +12,16 @@ void UTankBarrel::Eleate(float RelativeSpeed)
 	auto RawNewElevation = RelativeRotation.Pitch + ElevationChange;
 	auto Elevation=FMath::Clamp<float>(RawNewElevation,MinElevationDegrees,MaxElevationDegrees);
 	SetRelativeRotation(FRotator(Elevation,0,0));
+}
+
+UTankBarrel::UTankBarrel()
+{
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Asset(TEXT("StaticMesh'/Game/Tank/tank_fbx_Barrel.tank_fbx_Barrel'"));
+	if (Asset.Succeeded())
+	{
+		this->SetStaticMesh(Asset.Object);
+
+		UE_LOG(LogTemp, Warning,
+			L"Barrel mesh found!!!");
+	}
 }

@@ -2,6 +2,9 @@
 
 
 #include "TankPlayerController.h"
+#include "UObject/UObjectHash.h"
+#include "Camera/CameraComponent.h"
+
 ATank* ATankPlayerController::GetTank() const
 {
 	return Cast<ATank>(GetPawn());
@@ -12,20 +15,53 @@ void ATankPlayerController::BeginPlay()
 	auto possessedTank = GetTank();
 	if (!possessedTank)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Player Controller C++ class has not found Anything"));
+		UE_LOG(LogTemp, Warning, TEXT("TankPlayerController.h:Player Controller C++ class has not found Anything"));
 	}
-	else
-		UE_LOG(LogTemp, Warning, TEXT("Player Controller C++ class found %s"), *(possessedTank->GetName()));
 
 }
+
 void ATankPlayerController::Tick(float deltaTime)
 {
 	Super::Tick(deltaTime);
 	AimTowardCrossHair();
 	UInputComponent* input = FindComponentByClass<UInputComponent>();
-	if (input)
+	if (!input)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("input Found!"));
+		UE_LOG(LogTemp, Warning, TEXT("TankPlayerController.h:inputComponent not Found!"));
+	}
+}
+void ATankPlayerController::OnPossessedTankDeath()
+{
+	UE_LOG(LogTemp, Warning, TEXT("TankPlayerController.h:PlayerTank Dead!"));
+	//StartSpectatingOnly();
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(),ATank::StaticClass(), Actors);
+	FString name = GetTank()->GetName();
+	GetTank()->Destroy();
+	this->SetPawn(NULL);
+	static bool dead = false;
+	for (auto m : Actors)
+	{
+		if (m->GetName() != name)
+		{
+			
+			UE_LOG(LogTemp, Warning, TEXT("Possessing another Tank %s from %s"), *m->GetName(), *m->GetInstigatorController()->GetName());
+			if(this->GetPawn()==NULL)
+			GetWorld()->GetFirstPlayerController()->Possess(Cast<APawn>(m));
+
+		}
+	}
+	
+}
+void ATankPlayerController::SetPawn(APawn * InPawn)
+{
+	Super::SetPawn(InPawn);
+	if (InPawn)
+	{
+		auto MyTank = Cast<ATank>(InPawn);
+		if (!ensure(MyTank)) { return; }
+		MyTank->TankDead.AddUniqueDynamic(this,&ATankPlayerController::OnPossessedTankDeath);
+		
 	}
 }
 void ATankPlayerController::AimTowardCrossHair()
@@ -34,11 +70,16 @@ void ATankPlayerController::AimTowardCrossHair()
 	if (!GetTank())
 		return;
 	FHitResult res;
-	if (GetHitLocation(res))
+	bool getRes=GetHitLocation(res);
+	if (getRes)
 	{
-		//UE_LOG(LogTemp, Warning,
-		//	L"Aiming at component:%s",*res.GetActor()->GetName());
-		GetTank()->AimAt(res.Location);
+		
+		auto p = GetTank()->GetAimingComponent();
+		if (p)
+			p->AimAt(res.Location);
+		else
+			UE_LOG(LogTemp, Warning, L"TankPlayerController.h:Aiming Component No Found!!")
+
 	}
 
 }
@@ -61,9 +102,14 @@ bool ATankPlayerController::GetHitLocation(FHitResult& HitRes) const
 	FVector End = CameraPos + Direction * AimingRange;
 	FCollisionQueryParams Params = FCollisionQueryParams::DefaultQueryParam;
 	Params.AddIgnoredActor(GetTank());
-	return GetWorld()->LineTraceSingleByChannel(HitRes,
+	bool GetRes= GetWorld()->LineTraceSingleByChannel(HitRes,
 		CameraPos,
 		End,
 		ECollisionChannel::ECC_Visibility, Params);
+	if (GetRes)
+	{
+		return true;
+	}
+	return false;
 
 }

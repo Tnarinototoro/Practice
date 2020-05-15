@@ -6,8 +6,16 @@ UAimingComponent::UAimingComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false;//do we  really need tick?
-	
+	PrimaryComponentTick.bCanEverTick = true;//do we  really need tick?
+	static ConstructorHelpers::FClassFinder<AProjectile> Asset(TEXT("Blueprint'/Game/Tank/Projectile_BP'"));
+	if (Asset.Succeeded())
+	{
+		if (ensure(Asset.Class))
+			ProjecTileBluePrint = Asset.Class;
+
+		UE_LOG(LogTemp, Warning,
+			L"Projectile_BP Loaded!");
+	}
 	// ...
 }
 
@@ -16,11 +24,23 @@ UAimingComponent::UAimingComponent()
 void UAimingComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	AimingState = FiringState::ReadyToFire;
 
 	// ...
 	
 }
 
+void UAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	bool IsReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeSeconds;
+	if (IsReloaded&&AmmoCurrent > 0)
+	{
+		AimingState = FiringState::ReadyToFire;
+	}
+	if (AmmoCurrent <= 0)
+		AimingState = FiringState::OutofAmmo;
+}
 
 void UAimingComponent::SetBarrelReferrenceFromOwner(UTankBarrel* BarrelToBeSet)
 {
@@ -33,15 +53,7 @@ void UAimingComponent::SetTurretreferrenceFromOwner(UTankTurret * TurretTobeSet)
 	this->Turret = TurretTobeSet;
 }
 
-// Called every frame
-void UAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-
-void UAimingComponent::AimAt(FVector WorldSpaceAim,float LaunchiSpeed)
+void UAimingComponent::AimAt(FVector WorldSpaceAim)
 {
 	auto OurtankName = (GetOwner()->GetName());
 	if (Barrel)
@@ -55,7 +67,7 @@ void UAimingComponent::AimAt(FVector WorldSpaceAim,float LaunchiSpeed)
 				TossV,
 				StartLocation,
 				WorldSpaceAim,
-				LaunchiSpeed,
+				LaunchSpeed,
 				false,
 				0,
 				0,
@@ -96,5 +108,25 @@ void UAimingComponent::MoveBarrel(FVector AimDirection)
 	Barrel->Eleate(deltaRotation.Pitch);
 	//turret yaw
 	Turret->RotateTurret(deltaRotation.Yaw);
+}
+
+void UAimingComponent::Fire()
+{
+	if (Barrel&&AimingState==FiringState::ReadyToFire)
+	{
+		auto toBeLaunched = GetWorld()->SpawnActor<AProjectile>(
+			ProjecTileBluePrint,
+			Barrel->GetSocketLocation(FName("Projectile")),
+			Barrel->GetSocketRotation(FName("Projectile"))
+			);
+		if(toBeLaunched)
+		toBeLaunched->LaunchProjectile(this->LaunchSpeed);
+		else
+			UE_LOG(LogTemp, Warning, L"Projectile Spawn failed!");
+		AmmoCurrent--;
+		LastFireTime = FPlatformTime::Seconds();
+		AimingState = FiringState::Reloading;
+
+	}
 }
 

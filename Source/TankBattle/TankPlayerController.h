@@ -15,6 +15,7 @@ class TANKBATTLE_API ATankPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 public:
+	UFUNCTION(BluePrintCallable,Category="SetUp")
 	ATank* GetTank() const;
 	virtual void BeginPlay() override;
 	virtual void Tick(float deltaTime) override;
@@ -24,9 +25,13 @@ public:
 		float Ypos = 0.333;
 	UPROPERTY(EditAnywhere)
 		float AimingRange = 10000000;
+protected:
+	UFUNCTION(BluePrintCallable)
+		void OnPossessedTankDeath();
 
  private:
 	 //start the tank by moving the barrel towards the cross hair
+	virtual void SetPawn(APawn* InPawn) override;
 	void AimTowardCrossHair();
 	bool GetAimHitDirection(FVector & inVector, FVector & CameraPos) const;
 	//get the aiming world direction

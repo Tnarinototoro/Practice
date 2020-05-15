@@ -8,3 +8,4 @@ Content/
 Saved/
 .vs/
 *.modules
+*.uproject

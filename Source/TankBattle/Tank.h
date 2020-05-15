@@ -5,7 +5,12 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include"AimingComponent.h"
+#include "TankMoveComponent.h"
 #include "Tank.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTankDeath);
+
+
 UCLASS()
 class TANKBATTLE_API ATank : public APawn
 {
@@ -18,33 +23,24 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	UAimingComponent* TanAimingCompo = nullptr;
+
 
 public:	
-	// Called every frame
-	void AimAt(FVector HitLocation);
+	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	UFUNCTION(BlueprintCallable,Category=Setup)
-	void SetBarrelReferrence(UTankBarrel* BarrelFromOutSide);
-
-	UFUNCTION(BlueprintCallable, Category = Setup)
-	void SetTurretRefferrence(UTankTurret* TurretFromOutside);
-
-	UFUNCTION(BlueprintCallable)
-		void Fire();
-
+	UFUNCTION(BluePrintCallable, Category = "SetUp")
+	UAimingComponent* GetAimingComponent();
+	UFUNCTION(BluePrintCallable, Category = "SetUp")
+	UTankMoveComponent* GetMoveComponent();
+	UPROPERTY(EditDefaultsOnly, Category = "TankStatics")
+		float deFaultHealth = 100;
+	UFUNCTION(BluePrintPure, Category = "TankStatics")  //pure blueprint is like const 
+		float GetCurrentHealthPercent() const;
+		FTankDeath TankDead;
 private:
-	UTankBarrel* localBarrel = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = Firing)
-		float LaunchSpeed = 10000; //starting speed 1000m/s
+	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	float CurrentHealth;
 
-	UPROPERTY(EditAnywhere, Category = Setup)
-		TSubclassOf<AProjectile> ProjecTileBluePrint;
-	UPROPERTY(EditDefaultsOnly , Category = Firing)
-	float ReloadTimeSeconds = 3;
-
-	double LastFireTime=0;
 };

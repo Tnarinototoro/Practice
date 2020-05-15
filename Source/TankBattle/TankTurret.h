@@ -15,6 +15,7 @@ class TANKBATTLE_API UTankTurret : public UStaticMeshComponent
 	GENERATED_BODY()
 
 public:
+	UTankTurret();
 	void RotateTurret(float RelativeSpeed);
 private:
 

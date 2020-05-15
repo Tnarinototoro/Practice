@@ -19,4 +19,10 @@ public:
 	ATank* GetAITank()const;
 	ATank* GetPlayerTank() const;
 	virtual void Tick(float deltaTime) override;
+private:
+	float acceptanceRadius = 3000;
+	virtual void SetPawn(APawn* InPawn) override;
+
+	UFUNCTION()
+		void OnPossessedTankDeath();
 };

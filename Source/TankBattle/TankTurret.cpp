@@ -2,6 +2,7 @@
 
 
 #include "TankTurret.h"
+#include "UObject/ConstructorHelpers.h"
 void UTankTurret::RotateTurret(float RelativeSpeed)
 {
 	//the rotate will always rotate to the nearest angle!
@@ -14,3 +15,14 @@ void UTankTurret::RotateTurret(float RelativeSpeed)
 	SetRelativeRotation(FRotator(0, Rotation,0));
 }
 
+UTankTurret::UTankTurret()
+{
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Asset(TEXT("StaticMesh'/Game/Tank/tank_fbx_Turret.tank_fbx_Turret'"));
+	if (Asset.Succeeded())
+	{
+		this->SetStaticMesh(Asset.Object);
+
+		UE_LOG(LogTemp, Warning,
+			L"Turret mesh found!!!");
+	}
+}
